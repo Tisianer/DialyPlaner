@@ -1,0 +1,111 @@
+﻿@model DailyPlanner.Models.IndexViewModel
+@using DailyPlanner.Helpers
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@using (Html.BeginForm("Index", "Home", FormMethod.Post))
+{
+    <p class="form-inline">
+        @Html.DropDownList("TypeEntries", Model.DiarysListFilter.TypesEntries as SelectList, htmlAttributes: new { @class = "form-control" })
+        <input type="submit" value="Создать" class="btn btn-default" />
+    </p>
+    <p>
+        @Html.Label("", "Пожалуйста, выберете тип записи. После создания, изменить тип зиписи нельзя.")
+    </p>
+}
+<br \>
+
+@using (Html.BeginForm("Index", "Home", FormMethod.Get))
+{
+    <div class="form-inline">
+        @Html.Label("", "Поиск по заголовку: ", htmlAttributes: new { @class = "control-label" })
+        @Html.TextBox("search_string")
+    </div>
+    <div class="form-inline">
+        @Html.Label("", "Тип записи: ", htmlAttributes: new { @class = "control-label" })
+        @Html.DropDownList("type_entries", Model.DiarysListFilter.TypesEntries as SelectList, htmlAttributes: new { @class = "form-control" })
+        @Html.Label("", "Дата начала: ", htmlAttributes: new { @class = "control-label" })
+        @Html.Editor("start_date", Model.DiarysListFilter.StartDate, new { htmlAttributes = new { @class = "form-control", type = "" } })
+        @Html.ValidationMessage("StartDate", "", new { @class = "text-danger" })
+    </div>
+    <br \>
+    <div class="form-inline">
+        @Html.Label("", "Список за: ", htmlAttributes: new { @class = "control-label" })
+        @Html.DropDownList("mode_display", Model.DiarysListFilter.ModesDisplay as SelectList, htmlAttributes: new { @class = "form-control" })
+        <input type="submit" value="Фильтр" class="btn btn-default" />
+    </div>
+}
+<br \>
+
+
+<table class="table">
+    <tr>
+        <th>@Html.Label("", "Тип записи")</th>
+        <th>@Html.Label("", "Заголовок")</th>
+        <th>@Html.Label("", "Дата начала")</th>
+        <th>@Html.Label("", "Дата окончания")</th>
+        <th>@Html.Label("", "Место")</th>
+        <th>@Html.Label("", "Выполннено / Не выполннено")</th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Diarys)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TypeEntries)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Topic)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            @if (item.ExpirationDate != null)
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExpirationDate)
+                </td>
+            }
+            else
+            {
+                <td>
+                    @Html.LabelFor(modelItem => item.ExpirationDate, "-")
+                </td>
+            }
+            @if (item.Place != null)
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.Place)
+                </td>
+            }
+            else
+            {
+                <td>
+                    @Html.LabelFor(modelItem => item.Place, "-")
+                </td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.Performed)
+            </td>
+            <td>
+                @Html.ActionLink("Редактировать", "Edit", new { id = item.Id, type_entries = item.TypeEntries }) |
+                @Html.ActionLink("Удалить", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+    }
+
+</table>
+
+<div class="btn-group">
+    @*Кастомный хелпер пагинации*@
+    @Html.PageLinks(Model.PageInfo, x => Url.Action("Index", new { type_entries = Model.DiarysListFilter.SelectTypeEntries,
+                                                                                    start_date = Model.DiarysListFilter.StartDate,
+                                                                                    search_string = Model.DiarysListFilter.SearchString,
+                                                                                    mode_display = Model.DiarysListFilter.SelectModeDisplay,
+                                                                                    page = x }))
+</div>
