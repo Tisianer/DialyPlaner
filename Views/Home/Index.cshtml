@@ -93,8 +93,8 @@
                 @Html.DisplayFor(modelItem => item.Performed)
             </td>
             <td>
-                @Html.ActionLink("Редактировать", "Edit", new { id = item.Id, type_entries = item.TypeEntries }) |
-                @Html.ActionLink("Удалить", "Delete", new { id = item.Id })
+                @Html.RouteLink("Редактировать", new { controller = "CreatEditDelete", action = "Edit", id = item.Id, type_entries = item.TypeEntries }) |
+                @Html.RouteLink("Удалить", new { controller = "CreatEditDelete", action = "Delete", id = item.Id, type_entries = item.TypeEntries })
             </td>
         </tr>
     }

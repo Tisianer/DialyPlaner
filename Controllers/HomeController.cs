@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using DailyPlanner.Models;
 using System.Data.Entity;
 using System.Globalization;
-using System.Threading.Tasks;
 
 namespace DailyPlanner.Controllers
 {
@@ -16,33 +14,6 @@ namespace DailyPlanner.Controllers
         IndexViewModel viewModel = new IndexViewModel();
         List<string> TypesEntries = new List<string>() { null, "Встреча", "Дело", "Памятка" };
         List<string> ModesDisplay = new List<string>() { "Все время", "День", "Неделя", "Месяц" };
-
-        private Diary TryParseDate(Diary diary, string strStartDate, string strEndDate)
-        {
-            bool startDate_fr_FR = DateTime.TryParseExact(strStartDate, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime StartDate_fr_FR);
-            bool startDate_de_DE = DateTime.TryParseExact(strStartDate, "dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime StartDate_de_DE);
-            bool EndDate_fr_FR = DateTime.TryParseExact(strEndDate, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime ExpirationDate_fr_FR);
-            bool EndDate_de_DE = DateTime.TryParseExact(strEndDate, "dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime ExpirationDate_de_DE);
-            if (!(startDate_fr_FR || startDate_de_DE))
-                ModelState.AddModelError("StartDate", "Не соответствует формату ввода!");
-            if (diary.TypeEntries == "Памятка")
-            {
-                if (startDate_fr_FR || startDate_de_DE)
-                    diary.StartDate = startDate_fr_FR == true ? StartDate_fr_FR : StartDate_de_DE;
-                return diary;
-            }
-            if (!(EndDate_fr_FR || EndDate_de_DE))
-                ModelState.AddModelError("ExpirationDate", "Не соответствует формату ввода!");
-            if ((startDate_fr_FR || startDate_de_DE) && (EndDate_fr_FR || EndDate_de_DE))
-            {
-                diary.StartDate = startDate_fr_FR == true ? StartDate_fr_FR : StartDate_de_DE;
-                diary.ExpirationDate = EndDate_fr_FR == true ? ExpirationDate_fr_FR : ExpirationDate_de_DE;
-                if (diary.StartDate > diary.ExpirationDate)
-                    ModelState.AddModelError("ExpirationDate", "Дата конечная должна быть позднее начальной даты!");
-                
-            }
-            return diary;
-        }
 
         [HttpGet]
         public ActionResult Index(string search_string, string start_date, string type_entries, string mode_display , int page = 1)
@@ -73,7 +44,7 @@ namespace DailyPlanner.Controllers
                 diarys = diarys.Where(s => DbFunctions.TruncateTime(s.StartDate) == Date.Date); // Выборка по заданной дате.
             }
             else
-                ModelState.AddModelError("StartDate", "Дата и время должны быть формата \"дд/мм/гггг\" или \"дд.мм.гггг\"!");
+                ModelState.AddModelError("StartDate", "Дата должна быть формата \"дд/мм/гггг\" или \"дд.мм.гггг\"!");
             if (!String.IsNullOrEmpty(search_string))
                 diarys = diarys.Where(top => top.Topic.ToUpper().Contains(search_string.ToUpper())); // Поиск по заголовку.
             // Пагинация.
@@ -86,6 +57,7 @@ namespace DailyPlanner.Controllers
             viewModel.Diarys = diarys.ToList().Skip((page - 1) * pageSize).Take(pageSize); // Подсчет пропускаемых объектов на страницу пагинации.
             return View(viewModel);
         }
+
         [HttpPost]
         public ActionResult Index(string TypeEntries)
         {
@@ -94,75 +66,7 @@ namespace DailyPlanner.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-            return RedirectToAction("Creat", "Home", new { TypeEntries });
-        }
-
-
-        [HttpGet]
-        public ActionResult Creat(string TypeEntries)
-        {
-            ViewBag.TypeEntries = TypeEntries;
-            return View();
-        }
-        [HttpPost]
-        public ActionResult Creat(Diary diary, string start_date, string end_date)
-        {
-            diary = TryParseDate(diary, start_date, end_date); 
-            if (ModelState.IsValid)
-            {
-                db.Diarys.Add(diary);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            ViewBag.TypeEntries = diary.TypeEntries;
-            return View();
-        }
-
-        [HttpGet]
-        public ActionResult Edit(int? id, string type_entries)
-        {
-            if (id == null)
-            {
-                return HttpNotFound();
-            }
-            Diary diary = db.Diarys.Find(id);
-            if (diary != null)
-            {
-                return View(diary);
-            }
-            return HttpNotFound();
-        }
-        [HttpPost]
-        public ActionResult Edit(Diary diary, string start_date, string end_date)
-        {
-            diary = TryParseDate(diary, start_date, end_date);
-            if (ModelState.IsValid)
-            {
-                db.Entry(diary).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(diary);
-        }
-
-        [HttpGet]
-        public ActionResult Delete(int id)
-        {
-            Diary diary = db.Diarys.Find(id);
-            if (diary == null)
-                return HttpNotFound();
-            return View(diary);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Diary diary = db.Diarys.Find(id);
-            if (diary == null)
-                return HttpNotFound();
-            db.Diarys.Remove(diary);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Creat", "CreatEditDelete", new { TypeEntries });
         }
 
     }

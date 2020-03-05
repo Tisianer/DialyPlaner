@@ -22,12 +22,12 @@ namespace DailyPlanner.Models
         [Required(ErrorMessage = "Обязательно для заполнения")]
         [Column(TypeName = "DateTime2")]
         [DataType(DataType.DateTime)]
-        [DisplayFormat(DataFormatString = "{0:g}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy HH:mm}", ApplyFormatInEditMode = true)]
         [Display(Name = "Дата и время начала")]
         public DateTime StartDate { get; set; }
         [Column(TypeName = "DateTime2")]
         [DataType(DataType.DateTime)]
-        [DisplayFormat(DataFormatString = "{0:g}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy HH:mm}", ApplyFormatInEditMode = true)]
         [Display(Name = "Дата и время окончания")]
         public DateTime? ExpirationDate { get; set; }
         [Display(Name = "Место")]
