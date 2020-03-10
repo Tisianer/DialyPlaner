@@ -7,4 +7,4 @@ ASP.Net MVC для .NET Framework 4.7.2; Entity Framewor 6.4.0; БД созда�
 <strong>Изменения:</strong><br />
 Обособил  Creat/Edit/Delete в отдельный controller.
 
-Добавил файлы: проета - "DailyPlanner.cspro.user"; solution - "DailyPlanner.sln";
+Добавил файлы: проета - "DailyPlanner.cspro"; solution - "DailyPlanner.sln";
